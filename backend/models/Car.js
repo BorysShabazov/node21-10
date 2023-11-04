@@ -1,4 +1,3 @@
-const { black } = require("colors");
 const { Schema, model } = require("mongoose");
 
 const carSchema = new Schema({
