@@ -36,6 +36,7 @@ class CarsController {
   // });
 
   getAll = asyncHandler(async (req, res) => {
+    console.log(req.user);
     // const cars = await CarModel.find({});
     const cars = await CarService.getAll();
     if (!cars) {

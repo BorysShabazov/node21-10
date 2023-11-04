@@ -1,5 +1,7 @@
 const carsController = require("../controllers/CarsController");
+const authMidllevare = require("../midllevares/authMidllevare");
 const isValidId = require("../midllevares/isValidId");
+const rolesMiddlevare = require("../midllevares/rolesMiddlevare");
 const validateBody = require("../midllevares/validateBody");
 const carSchema = require("../schemas/carSchema");
 
@@ -8,7 +10,8 @@ const carsRoutes = require("express").Router();
 // додати машину
 carsRoutes.post("/cars", validateBody(carSchema), carsController.add);
 // отримати усі машини
-carsRoutes.get("/cars", carsController.getAll);
+// ["ADMIN", "MODERATOR"]
+carsRoutes.get("/cars", authMidllevare, rolesMiddlevare(["CTO","ADMIN", "MODERATOR"]), carsController.getAll);
 // отримати одну машину
 carsRoutes.get("/cars/:id", isValidId, carsController.getOne);
 // оновити машину

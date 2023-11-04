@@ -8,6 +8,7 @@ const userSchema = new Schema({
   },
   name: { type: String, default: "user" },
   token: { type: String, default: null },
+  roles: [{type: String, ref: "role"}]
 });
 
 module.exports = model("user", userSchema);

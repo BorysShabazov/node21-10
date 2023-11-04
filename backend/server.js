@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("./helpers/asyncHandler");
 const UserModel = require("./models/User");
+const RolesModel = require("./models/Role");
 const bcryptjs = require("bcryptjs");
 const path = require("path");
 const dotenv = require("dotenv");
@@ -44,9 +45,12 @@ app.post(
       throw new Error("User alredy exists");
     }
     const hashPassword = bcryptjs.hashSync(password, 5);
+    const roles = await RolesModel.findOne({ value: "USER" });
+    console.log(roles);
     const user = await UserModel.create({
       ...req.body,
       password: hashPassword,
+      roles: [roles.value]
     });
     res.status(201).json({ code: 201, message: "ok", data: { email } });
   })
@@ -82,6 +86,7 @@ app.post(
     const token = generateToken({
       students: ["Borys", "Andrii", "Oksana"],
       id: user._id,
+      roles: user.roles
     });
 
     user.token = token;
