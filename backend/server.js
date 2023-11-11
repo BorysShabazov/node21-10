@@ -1,4 +1,5 @@
 const express = require("express");
+const  {engine} = require('express-handlebars');
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("./helpers/asyncHandler");
 const UserModel = require("./models/User");
@@ -10,10 +11,17 @@ const connectDB = require("../config/connectDB");
 const invalidUrlError = require("./midllevares/invalidUrlError");
 const errorHandler = require("./midllevares/errorHandler");
 const authMidllevare = require("./midllevares/authMidllevare");
+const sendEmail = require("./services/sendEmail");
 const configPath = path.join(__dirname, "..", "config", ".env");
 dotenv.config({ path: configPath });
 require("colors");
 const app = express();
+
+app.use(express.static('public'));
+//Set handlebars
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', 'backend/views');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -23,8 +31,44 @@ app.use(express.json());
 // авторизація - це перевірка прав користувача
 // логаут - вихід користувача з системи
 
+app.get('/', (req, res) => {
+    res.render('home');
+});
+
+app.get('/about', (req, res) => {
+    res.render('about');
+});
+
+app.get('/contact', (req, res) => {
+    res.render('contact');
+});
+
+app.post('/sended', async (req, res) => {
+
+
+  try {
+    res.render('sended', {
+    message: 'Contact form send success', name: req.body.userName,
+    email: req.body.userEmail
+      });
+    await sendEmail(req.body);
+  } catch (error) {
+    res.status(400).json({
+      code: 400,
+      message: error.message
+    })
+  }
+  // res.send(req.body)
+});
+
 app.use("/api/v1", require("./routes/carsRoutes"));
 
+//get request for registration
+app.get('/register', (req, res) => {
+  res.render('register');
+})
+
+//Post request for registration
 app.post(
   "/register",
   asyncHandler(async (req, res) => {
@@ -52,10 +96,18 @@ app.post(
       password: hashPassword,
       roles: [roles.value]
     });
-    res.status(201).json({ code: 201, message: "ok", data: { email } });
+    // res.status(201).json({ code: 201, message: "ok", data: { email } });
+    res.status(201);
+    res.render('registrationSuccess')
   })
 );
 
+//get request for login
+app.get('/login', (req, res) => {
+  res.render('login');
+})
+
+//Post request for login
 app.post(
   "/login",
   asyncHandler(async (req, res) => {
@@ -92,7 +144,9 @@ app.post(
     user.token = token;
     await user.save();
 
-    res.status(200).json({ code: 200, message: "ok", data: { email, token } });
+    // res.status(200).json({ code: 200, message: "ok", data: { email, token } });
+    res.status(200);
+    res.render('loginSuccess')
   })
 );
 

@@ -1,0 +1,1 @@
+(()=>{"use strict";console.log("Hello from Yura Webpack"),console.log("Yura5000")})();
